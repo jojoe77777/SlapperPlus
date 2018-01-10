@@ -59,7 +59,7 @@ class SlapperPlusCommand extends PluginCommand {
         });
         $form->setTitle("§aSlapperPlus §6-§b Main menu");
         $form->setContent("");
-        $form->addButton("List Slapper entities");
+        $form->addButton("Edit Slapper entities");
         $form->addButton("Create a new Slapper entity");
         return $form;
     }
@@ -90,7 +90,7 @@ class SlapperPlusCommand extends PluginCommand {
             $this->plugin->editingId[$player->getName()] = $eid;
             $this->createSlapperDesc($entity)->sendToPlayer($player);
         });
-        $form->setTitle("§aSlapper entities");
+        $form->setTitle("§aSlapper entities (click to edit)");
         $form->setContent("");
         $entityIds = [];
         $i = 0;
