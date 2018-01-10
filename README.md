@@ -10,3 +10,9 @@ PocketMine-MP ALPHA9/10
 
 [Slapper](https://github.com/jojoe77777/Slapper)     
 [FormAPI](https://github.com/jojoe77777/FormAPI)
+
+# Screenshots
+
+![img](http://melban.com/slapper/github/images/readme/slapperplus/screenshots/create_entity.png)
+![img](http://melban.com/slapper/github/images/readme/slapperplus/screenshots/edit_entities.png)
+![img](http://melban.com/slapper/github/images/readme/slapperplus/screenshots/edit_entity.png)
