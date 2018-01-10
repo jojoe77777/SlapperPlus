@@ -1,3 +1,4 @@
+## THIS IS A SLAPPER ADDON, NOT A NEW UPDATE TO SLAPPER
 # SlapperPlus
 Add-on plugin for Slapper, using forms to create & manage Slapper entities
 
