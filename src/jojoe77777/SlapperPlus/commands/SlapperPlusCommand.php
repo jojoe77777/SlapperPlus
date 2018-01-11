@@ -55,12 +55,29 @@ class SlapperPlusCommand extends PluginCommand {
                     $this->createSlapperList($player)->sendToPlayer($player);
                     break;
                 case 1: // "Create a new Slapper entity"
+                    $this->createSlapperCreationForm($player)->sendToPlayer($player);
+                    break;
             }
         });
         $form->setTitle("§aSlapperPlus §6-§b Main menu");
         $form->setContent("");
-        $form->addButton("List Slapper entities");
+        $form->addButton("Edit Slapper entities");
         $form->addButton("Create a new Slapper entity");
+        return $form;
+    }
+
+    private function createSlapperCreationForm(Player $player){
+        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, ?array $data){
+            if($data[0] === null){
+                return;
+            }
+            $entityType = $data[0];
+            $name = $data[1];
+            $this->plugin->makeSlapper($player, $entityType, $name);
+        });
+        $form->setTitle("§bCreate Slapper entity");
+        $form->addDropdown("Entity type", Main::ENTITY_LIST, 0);
+        $form->addInput("Name", "Name", $player->getName());
         return $form;
     }
 
@@ -90,7 +107,7 @@ class SlapperPlusCommand extends PluginCommand {
             $this->plugin->editingId[$player->getName()] = $eid;
             $this->createSlapperDesc($entity)->sendToPlayer($player);
         });
-        $form->setTitle("§aSlapper entities");
+        $form->setTitle("§aSlapper entities (click to edit)");
         $form->setContent("");
         $entityIds = [];
         $i = 0;
@@ -138,9 +155,10 @@ class SlapperPlusCommand extends PluginCommand {
 
     private function createSlapperDesc(Entity $entity){
         $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, ?array $data){
-            if(empty($data)){
+            if(($data[0] ?? null) === null){
                 return;
-            }$eid = $this->plugin->editingId[$player->getName()];
+            }
+            $eid = $this->plugin->editingId[$player->getName()];
             /** @var Entity $entity */
             $entity = $this->plugin->getServer()->findEntity($eid);
             if($entity === null || $entity->isClosed()){
