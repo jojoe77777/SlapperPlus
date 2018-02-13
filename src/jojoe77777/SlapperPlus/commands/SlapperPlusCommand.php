@@ -45,8 +45,8 @@ class SlapperPlusCommand extends PluginCommand {
     }
 
     private function createMenu(){
-        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, ?array $data){
-            $selection = $data[0];
+        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, int $data = null){
+            $selection = $data;
             if($selection === null){
                 return; // Closed form
             }
@@ -67,8 +67,8 @@ class SlapperPlusCommand extends PluginCommand {
     }
 
     private function createSlapperCreationForm(Player $player){
-        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, ?array $data){
-            if($data[0] === null){
+        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, array $data = null){
+            if($data === null){
                 return;
             }
             $entityType = $data[0];
@@ -82,8 +82,8 @@ class SlapperPlusCommand extends PluginCommand {
     }
 
     private function createSlapperList(Player $player){
-        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, ?array $data){
-            $selection = $data[0];
+        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, int $data = null){
+            $selection = $data;
             if($selection === null){
                 return; // Closed form
             }
@@ -154,8 +154,8 @@ class SlapperPlusCommand extends PluginCommand {
     }
 
     private function createSlapperDesc(Entity $entity){
-        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, ?array $data){
-            if(($data[0] ?? null) === null){
+        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, array $data = null){
+            if($data === null){
                 return;
             }
             $eid = $this->plugin->editingId[$player->getName()];
