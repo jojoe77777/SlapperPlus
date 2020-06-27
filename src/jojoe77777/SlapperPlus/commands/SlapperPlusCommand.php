@@ -143,12 +143,10 @@ class SlapperPlusCommand extends PluginCommand {
                     } else {
                         $entityType = substr(get_class($entity), strlen("slapper\\entities\\other\\Slapper"));
                     }
-                    var_dump($this->getSlapperIcon($entityType));
                     $form->addButton($this->formatSlapperEntity($entity, $entityType), SimpleForm::IMAGE_TYPE_URL, $this->getSlapperIcon($entityType));
                     $entityIds[$i] = $entity->getId();
                     ++$i;
                 } elseif($entity instanceof SlapperHuman){
-                    var_dump($this->getSlapperIcon("Human"));
                     $form->addButton($this->formatSlapperHuman($entity), SimpleForm::IMAGE_TYPE_URL, $this->getSlapperIcon("Human"));
                     $entityIds[$i] = $entity->getId();
                     ++$i;
