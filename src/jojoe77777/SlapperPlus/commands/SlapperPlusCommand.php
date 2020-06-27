@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace jojoe77777\SlapperPlus\commands;
 
+use jojoe77777\FormAPI\CustomForm;
 use jojoe77777\FormAPI\SimpleForm;
 use jojoe77777\SlapperPlus\Main;
 use pocketmine\command\CommandSender;
@@ -14,13 +15,21 @@ use pocketmine\plugin\Plugin;
 use slapper\entities\SlapperEntity;
 use slapper\entities\SlapperHuman;
 
+/**
+ * Class SlapperPlusCommand
+ * @package jojoe77777\SlapperPlus\commands
+ */
 class SlapperPlusCommand extends PluginCommand {
 
-    const IMAGE_URL = "https://raw.githubusercontent.com/jojoe77777/vanilla-textures/mob-heads/{0}.png";
+    const IMAGE_URL = "https://raw.githubusercontent.com/jojoe77777/vanilla-textures/mob-heads/{name}.png";
 
     /** @var Main */
     private $plugin;
-
+    
+    /**
+     * SlapperPlusCommand constructor.
+     * @param Main $plugin
+     */
     public function __construct(Main $plugin) {
         $this->plugin = $plugin;
         parent::__construct("slapperplus", $plugin);
@@ -31,7 +40,13 @@ class SlapperPlusCommand extends PluginCommand {
     public function getPlugin() : Plugin {
         return $this->plugin;
     }
-
+    
+    /**
+     * @param CommandSender $sender
+     * @param string $commandLabel
+     * @param array $args
+     * @return bool|mixed
+     */
     public function execute(CommandSender $sender, string $commandLabel, array $args) {
         if(!$this->testPermission($sender)){
             return true;
@@ -40,34 +55,39 @@ class SlapperPlusCommand extends PluginCommand {
             $sender->sendMessage("§a[§bSlapperPlus§a]§6 This command uses forms and can only be executed ingame.");
             return true;
         }
-        $this->createMenu()->sendToPlayer($sender);
+        $this->createMenu($sender);
         return true;
     }
-
-    private function createMenu(){
-        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, int $data = null){
+    
+    /**
+     * @param Player $player
+     */
+    private function createMenu(Player $player){
+        $form = new SimpleForm(function(Player $player, $data){
             $selection = $data;
             if($selection === null){
                 return; // Closed form
             }
             switch($selection){
                 case 0: // "List Slapper entities"
-                    $this->createSlapperList($player)->sendToPlayer($player);
+                    $this->createSlapperList($player);
                     break;
                 case 1: // "Create a new Slapper entity"
-                    $this->createSlapperCreationForm($player)->sendToPlayer($player);
+                    $this->createSlapperCreationForm($player);
                     break;
             }
         });
         $form->setTitle("§aSlapperPlus §6-§b Main menu");
-        $form->setContent("");
         $form->addButton("Edit Slapper entities");
         $form->addButton("Create a new Slapper entity");
-        return $form;
+        $player->sendForm($form);
     }
-
+    
+    /**
+     * @param Player $player
+     */
     private function createSlapperCreationForm(Player $player){
-        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, array $data = null){
+        $form = new CustomForm(function(Player $player, $data){
             if($data === null){
                 return;
             }
@@ -78,11 +98,14 @@ class SlapperPlusCommand extends PluginCommand {
         $form->setTitle("§bCreate Slapper entity");
         $form->addDropdown("Entity type", Main::ENTITY_LIST, 0);
         $form->addInput("Name", "Name", $player->getName());
-        return $form;
+        $player->sendForm($form);
     }
-
+    
+    /**
+     * @param Player $player
+     */
     private function createSlapperList(Player $player){
-        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, int $data = null){
+        $form = new SimpleForm(function(Player $player, $data){
             $selection = $data;
             if($selection === null){
                 return; // Closed form
@@ -105,7 +128,7 @@ class SlapperPlusCommand extends PluginCommand {
                 return;
             }
             $this->plugin->editingId[$player->getName()] = $eid;
-            $this->createSlapperDesc($entity)->sendToPlayer($player);
+            $this->createSlapperDesc($player, $entity);
         });
         $form->setTitle("§aSlapper entities (click to edit)");
         $form->setContent("");
@@ -120,10 +143,12 @@ class SlapperPlusCommand extends PluginCommand {
                     } else {
                         $entityType = substr(get_class($entity), strlen("slapper\\entities\\other\\Slapper"));
                     }
+                    var_dump($this->getSlapperIcon($entityType));
                     $form->addButton($this->formatSlapperEntity($entity, $entityType), SimpleForm::IMAGE_TYPE_URL, $this->getSlapperIcon($entityType));
                     $entityIds[$i] = $entity->getId();
                     ++$i;
                 } elseif($entity instanceof SlapperHuman){
+                    var_dump($this->getSlapperIcon("Human"));
                     $form->addButton($this->formatSlapperHuman($entity), SimpleForm::IMAGE_TYPE_URL, $this->getSlapperIcon("Human"));
                     $entityIds[$i] = $entity->getId();
                     ++$i;
@@ -131,30 +156,38 @@ class SlapperPlusCommand extends PluginCommand {
             }
         }
         $this->plugin->entityIds[$player->getName()] = $entityIds;
-        return $form;
+        $player->sendForm($form);
     }
 
     private function formatSlapperEntity(SlapperEntity $entity, string $type) : string{
         $name = $this->shortenName($entity->getNameTag());
         $pos = round($entity->getX()) . ", " . round($entity->getY()) . ", " . round($entity->getZ()) . ", " . $entity->getLevel()->getName();
-        return "§6\"§b{$name}§6\" §7(§5{$type}§7)\n§1{$pos}";
+        return "§6'§b{$name}§6' §7(§5{$type}§7)\n§1{$pos}";
     }
 
     private function formatSlapperHuman(SlapperHuman $entity) : string {
         $name = $this->shortenName($entity->getNameTag());
         $pos = round($entity->getX()) . ", " . round($entity->getY()) . ", " . round($entity->getZ()) . ", " . $entity->getLevel()->getName();
-        return "§6\"§b{$name}§6\" §7(§5Human§7)\n§1{$pos}";
+        return "§6'§b{$name}§6' §7(§5Human§7)\n§1{$pos}";
     }
-
+    
+    /**
+     * @param $entityType
+     * @return string|string[]
+     */
     private function getSlapperIcon($entityType){
         if($entityType === "Human"){
-            return str_replace("{0}", (mt_rand(0, 1) === 0 ? "steve" : "alex"), self::IMAGE_URL);
+            return str_replace("{name}", (mt_rand(0, 1) === 0 ? "steve" : "alex"), self::IMAGE_URL);
         }
-        return str_replace("{0}", strtolower($entityType), self::IMAGE_URL);
+        return str_replace("{name}", strtolower($entityType), self::IMAGE_URL);
     }
-
-    private function createSlapperDesc(Entity $entity){
-        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, array $data = null){
+    
+    /**
+     * @param Player $player
+     * @param Entity $entity
+     */
+    private function createSlapperDesc(Player $player, Entity $entity){
+        $form = new CustomForm(function(Player $player, $data){
             if($data === null){
                 return;
             }
@@ -192,16 +225,24 @@ class SlapperPlusCommand extends PluginCommand {
             $form->addSlider("Pitch", 0, 180, -1, (int) $entity->getPitch());
             $form->addToggle("Teleport here", false);
         }
-        return $form;
+        $player->sendForm($form);
     }
-
+    
+    /**
+     * @param string $name
+     * @return string
+     */
     private function shortenName(string $name){
         if(strlen($name) > 16){
             return substr($name, 0, 16) . "...";
         }
         return $name;
     }
-
+    
+    /**
+     * @param SlapperEntity $entity
+     * @return false|string
+     */
     private function getSlapperType(SlapperEntity $entity){
         $class = get_class($entity);
         if(strpos($class, "other") === false){
