@@ -195,10 +195,6 @@ class SlapperPlusCommand extends PluginCommand {
         $player->sendForm($form);
     }
     
-    /**
-     * @param string $name
-     * @return string
-     */
     private function shortenName(string $name){
         if(strlen($name) > 16){
             return substr($name, 0, 16) . "...";
@@ -206,10 +202,6 @@ class SlapperPlusCommand extends PluginCommand {
         return $name;
     }
     
-    /**
-     * @param SlapperEntity $entity
-     * @return false|string
-     */
     private function getSlapperType(SlapperEntity $entity){
         $class = get_class($entity);
         if(strpos($class, "other") === false){

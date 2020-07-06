@@ -13,10 +13,6 @@ use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use slapper\events\SlapperCreationEvent;
 
-/**
- * Class Main
- * @package jojoe77777\SlapperPlus
- */
 class Main extends PluginBase implements Listener {
 
     const ENTITY_LIST = [
@@ -42,22 +38,12 @@ class Main extends PluginBase implements Listener {
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->getServer()->getCommandMap()->register("slapperplus", new SlapperPlusCommand($this));
     }
-    
-    /**
-     * @param PlayerQuitEvent $ev
-     */
+
     public function onPlayerQuit(PlayerQuitEvent $ev){
         unset($this->entityIds[$ev->getPlayer()->getName()]);
         unset($this->editingId[$ev->getPlayer()->getName()]);
     }
-    
-    /**
-     * @param string $type
-     * @param Player $player
-     * @param string $name
-     *
-     * @return CompoundTag
-     */
+
     private function makeNBT($type, Player $player, string $name): CompoundTag {
         $nbt = Entity::createBaseNBT($player, null, $player->getYaw(), $player->getPitch());
         $nbt->setShort("Health", 1);
@@ -78,12 +64,7 @@ class Main extends PluginBase implements Listener {
         }
         return $nbt;
     }
-    
-    /**
-     * @param Player $player
-     * @param int $type
-     * @param string $name
-     */
+
     public function makeSlapper(Player $player, int $type, string $name){
         $type = self::ENTITY_LIST[$type];
         $nbt = $this->makeNBT($type, $player, $name);
