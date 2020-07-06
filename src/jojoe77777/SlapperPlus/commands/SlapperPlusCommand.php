@@ -17,7 +17,7 @@ use slapper\entities\SlapperHuman;
 
 class SlapperPlusCommand extends PluginCommand {
 
-    const IMAGE_URL = "https://raw.githubusercontent.com/jojoe77777/vanilla-textures/mob-heads/{name}.png";
+    const IMAGE_URL = "https://raw.githubusercontent.com/jojoe77777/vanilla-textures/mob-heads/{0}.png";
 
     /** @var Main */
     private $plugin;
@@ -137,20 +137,20 @@ class SlapperPlusCommand extends PluginCommand {
     private function formatSlapperEntity(SlapperEntity $entity, string $type) : string{
         $name = $this->shortenName($entity->getNameTag());
         $pos = round($entity->getX()) . ", " . round($entity->getY()) . ", " . round($entity->getZ()) . ", " . $entity->getLevel()->getName();
-        return "§6'§b{$name}§6' §7(§5{$type}§7)\n§1{$pos}";
+        return "§6\"§b{$name}§6\" §7(§5{$type}§7)\n§1{$pos}";
     }
 
     private function formatSlapperHuman(SlapperHuman $entity) : string {
         $name = $this->shortenName($entity->getNameTag());
         $pos = round($entity->getX()) . ", " . round($entity->getY()) . ", " . round($entity->getZ()) . ", " . $entity->getLevel()->getName();
-        return "§6'§b{$name}§6' §7(§5Human§7)\n§1{$pos}";
+        return "§6\"§b{$name}§6\" §7(§5Human§7)\n§1{$pos}";
     }
 
     private function getSlapperIcon($entityType){
         if($entityType === "Human"){
-            return str_replace("{name}", (mt_rand(0, 1) === 0 ? "steve" : "alex"), self::IMAGE_URL);
+            return str_replace("{0}", (mt_rand(0, 1) === 0 ? "steve" : "alex"), self::IMAGE_URL);
         }
-        return str_replace("{name}", strtolower($entityType), self::IMAGE_URL);
+        return str_replace("{0}", strtolower($entityType), self::IMAGE_URL);
     }
 
     private function createSlapperDesc(Player $player, Entity $entity){
@@ -194,14 +194,14 @@ class SlapperPlusCommand extends PluginCommand {
         }
         $player->sendForm($form);
     }
-    
+
     private function shortenName(string $name){
         if(strlen($name) > 16){
             return substr($name, 0, 16) . "...";
         }
         return $name;
     }
-    
+
     private function getSlapperType(SlapperEntity $entity){
         $class = get_class($entity);
         if(strpos($class, "other") === false){
