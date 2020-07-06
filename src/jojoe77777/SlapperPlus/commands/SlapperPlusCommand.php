@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace jojoe77777\SlapperPlus\commands;
 
+use jojoe77777\FormAPI\CustomForm;
 use jojoe77777\FormAPI\SimpleForm;
 use jojoe77777\SlapperPlus\Main;
 use pocketmine\command\CommandSender;
@@ -40,34 +41,33 @@ class SlapperPlusCommand extends PluginCommand {
             $sender->sendMessage("§a[§bSlapperPlus§a]§6 This command uses forms and can only be executed ingame.");
             return true;
         }
-        $this->createMenu()->sendToPlayer($sender);
+        $this->createMenu($sender);
         return true;
     }
 
-    private function createMenu(){
-        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, int $data = null){
+    private function createMenu(Player $player){
+        $form = new SimpleForm(function(Player $player, $data){
             $selection = $data;
             if($selection === null){
                 return; // Closed form
             }
             switch($selection){
                 case 0: // "List Slapper entities"
-                    $this->createSlapperList($player)->sendToPlayer($player);
+                    $this->createSlapperList($player);
                     break;
                 case 1: // "Create a new Slapper entity"
-                    $this->createSlapperCreationForm($player)->sendToPlayer($player);
+                    $this->createSlapperCreationForm($player);
                     break;
             }
         });
         $form->setTitle("§aSlapperPlus §6-§b Main menu");
-        $form->setContent("");
         $form->addButton("Edit Slapper entities");
         $form->addButton("Create a new Slapper entity");
-        return $form;
+        $player->sendForm($form);
     }
 
     private function createSlapperCreationForm(Player $player){
-        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, array $data = null){
+        $form = new CustomForm(function(Player $player, $data){
             if($data === null){
                 return;
             }
@@ -78,11 +78,11 @@ class SlapperPlusCommand extends PluginCommand {
         $form->setTitle("§bCreate Slapper entity");
         $form->addDropdown("Entity type", Main::ENTITY_LIST, 0);
         $form->addInput("Name", "Name", $player->getName());
-        return $form;
+        $player->sendForm($form);
     }
 
     private function createSlapperList(Player $player){
-        $form = $this->plugin->getFormAPI()->createSimpleForm(function (Player $player, int $data = null){
+        $form = new SimpleForm(function(Player $player, $data){
             $selection = $data;
             if($selection === null){
                 return; // Closed form
@@ -105,7 +105,7 @@ class SlapperPlusCommand extends PluginCommand {
                 return;
             }
             $this->plugin->editingId[$player->getName()] = $eid;
-            $this->createSlapperDesc($entity)->sendToPlayer($player);
+            $this->createSlapperDesc($player, $entity);
         });
         $form->setTitle("§aSlapper entities (click to edit)");
         $form->setContent("");
@@ -131,7 +131,7 @@ class SlapperPlusCommand extends PluginCommand {
             }
         }
         $this->plugin->entityIds[$player->getName()] = $entityIds;
-        return $form;
+        $player->sendForm($form);
     }
 
     private function formatSlapperEntity(SlapperEntity $entity, string $type) : string{
@@ -153,8 +153,8 @@ class SlapperPlusCommand extends PluginCommand {
         return str_replace("{0}", strtolower($entityType), self::IMAGE_URL);
     }
 
-    private function createSlapperDesc(Entity $entity){
-        $form = $this->plugin->getFormAPI()->createCustomForm(function (Player $player, array $data = null){
+    private function createSlapperDesc(Player $player, Entity $entity){
+        $form = new CustomForm(function(Player $player, $data){
             if($data === null){
                 return;
             }
@@ -192,7 +192,7 @@ class SlapperPlusCommand extends PluginCommand {
             $form->addSlider("Pitch", 0, 180, -1, (int) $entity->getPitch());
             $form->addToggle("Teleport here", false);
         }
-        return $form;
+        $player->sendForm($form);
     }
 
     private function shortenName(string $name){
