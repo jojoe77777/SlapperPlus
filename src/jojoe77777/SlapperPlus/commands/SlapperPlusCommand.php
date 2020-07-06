@@ -15,21 +15,13 @@ use pocketmine\plugin\Plugin;
 use slapper\entities\SlapperEntity;
 use slapper\entities\SlapperHuman;
 
-/**
- * Class SlapperPlusCommand
- * @package jojoe77777\SlapperPlus\commands
- */
 class SlapperPlusCommand extends PluginCommand {
 
     const IMAGE_URL = "https://raw.githubusercontent.com/jojoe77777/vanilla-textures/mob-heads/{name}.png";
 
     /** @var Main */
     private $plugin;
-    
-    /**
-     * SlapperPlusCommand constructor.
-     * @param Main $plugin
-     */
+
     public function __construct(Main $plugin) {
         $this->plugin = $plugin;
         parent::__construct("slapperplus", $plugin);
@@ -40,13 +32,7 @@ class SlapperPlusCommand extends PluginCommand {
     public function getPlugin() : Plugin {
         return $this->plugin;
     }
-    
-    /**
-     * @param CommandSender $sender
-     * @param string $commandLabel
-     * @param array $args
-     * @return bool|mixed
-     */
+
     public function execute(CommandSender $sender, string $commandLabel, array $args) {
         if(!$this->testPermission($sender)){
             return true;
@@ -58,10 +44,7 @@ class SlapperPlusCommand extends PluginCommand {
         $this->createMenu($sender);
         return true;
     }
-    
-    /**
-     * @param Player $player
-     */
+
     private function createMenu(Player $player){
         $form = new SimpleForm(function(Player $player, $data){
             $selection = $data;
@@ -82,10 +65,7 @@ class SlapperPlusCommand extends PluginCommand {
         $form->addButton("Create a new Slapper entity");
         $player->sendForm($form);
     }
-    
-    /**
-     * @param Player $player
-     */
+
     private function createSlapperCreationForm(Player $player){
         $form = new CustomForm(function(Player $player, $data){
             if($data === null){
@@ -100,10 +80,7 @@ class SlapperPlusCommand extends PluginCommand {
         $form->addInput("Name", "Name", $player->getName());
         $player->sendForm($form);
     }
-    
-    /**
-     * @param Player $player
-     */
+
     private function createSlapperList(Player $player){
         $form = new SimpleForm(function(Player $player, $data){
             $selection = $data;
@@ -168,22 +145,14 @@ class SlapperPlusCommand extends PluginCommand {
         $pos = round($entity->getX()) . ", " . round($entity->getY()) . ", " . round($entity->getZ()) . ", " . $entity->getLevel()->getName();
         return "§6'§b{$name}§6' §7(§5Human§7)\n§1{$pos}";
     }
-    
-    /**
-     * @param $entityType
-     * @return string|string[]
-     */
+
     private function getSlapperIcon($entityType){
         if($entityType === "Human"){
             return str_replace("{name}", (mt_rand(0, 1) === 0 ? "steve" : "alex"), self::IMAGE_URL);
         }
         return str_replace("{name}", strtolower($entityType), self::IMAGE_URL);
     }
-    
-    /**
-     * @param Player $player
-     * @param Entity $entity
-     */
+
     private function createSlapperDesc(Player $player, Entity $entity){
         $form = new CustomForm(function(Player $player, $data){
             if($data === null){
