@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace jojoe77777\SlapperPlus;
 
-use jojoe77777\FormAPI\FormAPI;
 use jojoe77777\SlapperPlus\commands\SlapperPlusCommand;
 use pocketmine\entity\Entity;
 use pocketmine\event\Listener;
@@ -40,15 +39,17 @@ class Main extends PluginBase implements Listener {
     /** @var array */
     public $editingId = [];
 
+    /** @var FormAPI */
+    public $formAPI;
+
     public function onEnable() {
+        $this->formAPI = new FormAPI();
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->getServer()->getCommandMap()->register("slapperplus", new SlapperPlusCommand($this));
     }
 
     public function getFormAPI() : FormAPI {
-        /** @var FormAPI $api */
-        $api = $this->getServer()->getPluginManager()->getPlugin("FormAPI");
-        return $api;
+        return $this->formAPI;
     }
 
     public function onPlayerQuit(PlayerQuitEvent $ev){
@@ -59,28 +60,39 @@ class Main extends PluginBase implements Listener {
     public function makeSlapper(Player $player, int $type, string $name){
         $type = self::ENTITY_LIST[$type];
         $nbt = new CompoundTag();
-        $nbt->Pos = new ListTag("Pos", [
+        $pos = new ListTag("Pos", [
             new DoubleTag("", $player->getX()),
             new DoubleTag("", $player->getY()),
             new DoubleTag("", $player->getZ())
         ]);
-        $nbt->Motion = new ListTag("Motion", [
+        $motion = new ListTag("Motion", [
             new DoubleTag("", 0),
             new DoubleTag("", 0),
             new DoubleTag("", 0)
         ]);
-        $nbt->Rotation = new ListTag("Rotation", [
+        $rotation = new ListTag("Rotation", [
             new FloatTag("", $player->getYaw()),
             new FloatTag("", $player->getPitch())
         ]);
-        $nbt->Health = new ShortTag("Health", 1);
-        $nbt->Commands = new CompoundTag("Commands", []);
-        $nbt->MenuName = new StringTag("MenuName", "");
-        $nbt->SlapperVersion = new StringTag("SlapperVersion", $this->getServer()->getPluginManager()->getPlugin("Slapper")->getDescription()->getVersion());
+        $health = new ShortTag("Health", 1);
+        $commands = new CompoundTag("Commands", []);
+        $menuName = new StringTag("MenuName", "");
+        $slapperVersion = new StringTag("SlapperVersion", $this->getServer()->getPluginManager()->getPlugin("Slapper")->getDescription()->getVersion());
+
+        $nbt->setTag($pos);
+        $nbt->setTag($motion);
+        $nbt->setTag($rotation);
+        $nbt->setTag($health);
+        $nbt->setTag($commands);
+        $nbt->setTag($menuName);
+        $nbt->setTag($slapperVersion);
+
         if($type === "Human") {
             $player->saveNBT();
-            $nbt->Inventory = clone $player->namedtag->Inventory;
-            $nbt->Skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]);
+            $inventory = clone $player->namedtag->getListTag("Inventory");
+            $skin = new CompoundTag("Skin", ["Data" => new StringTag("Data", $player->getSkin()->getSkinData()), "Name" => new StringTag("Name", $player->getSkin()->getSkinId())]);
+            $nbt->setTag($inventory);
+            $nbt->setTag($skin);
         }
         $entity = Entity::createEntity("Slapper{$type}", $player->getLevel(), $nbt);
         $entity->setNameTag($name);
@@ -90,5 +102,4 @@ class Main extends PluginBase implements Listener {
         $entity->spawnToAll();
         $player->sendMessage("§a[§bSlapperPlus§a]§6 Created {$type} entity");
     }
-
 }

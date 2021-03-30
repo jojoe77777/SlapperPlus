@@ -1,7 +1,7 @@
 name: SlapperPlus
 main: jojoe77777\SlapperPlus\Main
-version: 1.0.2
-api: [3.0.0-ALPHA9, 3.0.0-ALPHA10, 3.0.0-ALPHA11]
+version: 2.0.2
+api: [3.0.0]
 author: jojoe77777
 description: Add-on plugin for Slapper
 depend: [Slapper, FormAPI]
